@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAU - Sistema de Información de Urgencias</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="contenedor-principal">
+        
+        <div id="pantallaInicio" class="pantalla">
+            <h1 class="titulo-hospital">🏥 SIAU - Portal de Urgencias</h1>
+            <p class="subtitulo">Por favor, seleccione su rol para ingresar al sistema:</p>
+            <div class="grupo-botones-inicio">
+                <button class="btn-rol medico" onclick="irAPantalla('LoginMedico')">👨‍⚕️ Personal Médico</button>
+                <button class="btn-rol familiar" onclick="irAPantalla('ModuloFamiliar')">👥 Módulo de Familiares</button>
+            </div>
+        </div>
+
+        <div id="pantallaLoginMedico" class="pantalla" style="display:none;">
+            <h2>🔐 Ingreso Personal Médico</h2>
+            <div class="formulario">
+                <label>Usuario:</label>
+                <input type="text" id="userMed" placeholder="Ej: mellizo">
+                
+                <label>Contraseña:</label>
+                <input type="password" id="passMed" placeholder="••••••••">
+                
+                <label>Código Médico Operacional:</label>
+                <input type="text" id="codigoMed" placeholder="Ej: 101">
+                
+                <div id="errorLogin" class="alerta-error" style="display:none;">
+                    ❌ Credenciales incorrectas. Verifique usuario, contraseña o código institucional.
+                </div>
+                
+                <button class="btn-accion" onclick="validarCredenciales()">Ingresar al Panel</button>
+                <button class="btn-volver" onclick="irAPantalla('Inicio')">← Volver al Inicio</button>
+            </div>
+        </div>
+
+        <div id="pantallaModuloMedico" class="pantalla" style="display:none;">
+            <div class="encabezado-panel">
+                <h2 id="saludoMedico">👨‍⚕️ Panel del Médico</h2>
+                <p id="especialidadMedico" class="sub-especialidad">Especialista de Turno</p>
+            </div>
+
+            <div id="notificacionesMedico" class="bloque-notificaciones-med" style="display:none;">
+                <h4>🔔 Inquietudes Pendientes de Familiares</h4>
+                <ul id="listaNotificacionesMed"></ul>
+            </div>
+
+            <div class="formulario">
+                <h3>Formulario de Admisión / Registro</h3>
+                
+                <label>Número de Identificación (Cédula):</label>
+                <input type="text" id="medicoDoc" placeholder="Número de documento">
+                
+                <label>Nombre Completo del Paciente:</label>
+                <input type="text" id="medicoPaciente" placeholder="Nombre y apellidos">
+                
+                <h3>Actualización del Estado Clínico</h3>
+                <label>Seleccione la Conducta Médica (Por Etapas Hospitalarias):</label>
+                <select id="medicoEstado">
+                    <optgroup label="🩺 1. Admisión y Valoración Inicial">
+                        <option value="TRIAGE">Clasificación Realizada (Triage Médico Inicial)</option>
+                        <option value="VALORACION">En Valoración Médica Directa (Evaluación Especializada)</option>
+                        <option value="REVALORACION">Revaloración Clínica (Monitoreo de Evolución de Síntomas)</option>
+                    </optgroup>
+
+                    <optgroup label="🚨 2. Área de Críticos y Emergencias Vitales">
+                        <option value="REANIMACION">⚠️ En Sala de Reanimación (Soporte Vital Avanzado)</option>
+                        <option value="SHOCK_TRAUMA">⚠️ Ingreso a Shock Trauma (Estabilización por Politrauma o Infarto)</option>
+                        <option value="QUIROFANO_EMERG">⚠️ Traslado Urgente a Quirófano (Cirugía de Emergencia)</option>
+                        <option value="UCI_TRAMITE">⚠️ Trámite de Cupo / Traslado a Unidad de Cuidados Intensivos</option>
+                    </optgroup>
+
+                    <optgroup label="🧪 3. Ayudas Diagnósticas y Exámenes">
+                        <option value="EXAMENES_LAB">Orden de Laboratorio Clínico (Muestras de Sangre/Orina)</option>
+                        <option value="IMAGENES_TAC">Traslado a Diagnóstico por Imágenes (Radiografía / TAC)</option>
+                        <option value="ECOGRAFIA">Procedimiento de Ecografía / Ultrasonido en Curso</option>
+                        <option value="RESULTADOS_REV">Resultados en Revisión Médica (Análisis de Reportes)</option>
+                    </optgroup>
+
+                    <optgroup label="💉 4. Procedimientos y Tratamiento">
+                        <option value="MEDICACION_IV">Tratamiento y Medicación Endovenosa en Curso</option>
+                        <option value="PROCEDIMIENTO_MENOR">Procedimiento Quirúrgico Menor o Sutura en Sala</option>
+                        <option value="TERAPIA_RESP">Soporte de Terapia Respiratoria o Nebulización</option>
+                        <option value="TRANSFUSION">Transfusión de Componentes Sanguíneos en Curso</option>
+                    </optgroup>
+
+                    <optgroup label="🛏️ 5. Destino de Estancia Interna">
+                        <option value="OBSERVACION">Traslado a Sala de Observación de Urgencias</option>
+                        <option value="HOSPITALIZACION">Trámite de Internamiento / Hospitalización en Piso</option>
+                        <option value="REMITIDO">Remisión Interinstitucional (Traslado a Alta Complejidad)</option>
+                    </optgroup>
+
+                    <optgroup label="✅ 6. Egreso y Salida">
+                        <option value="ALTA_MEDICA">Plan de Alta Médica e Instrucciones de Salida</option>
+                        <option value="ALTA_VOLUNTARIA">Egreso por Alta Voluntaria (Retiro Solicitado)</option>
+                    </optgroup>
+                </select>
+
+                <button id="btnAbrirMensajeria" class="btn-abrir-msg" style="display:none;" onclick="conmutarPanelMensaje()">✉️ Enviar Mensaje / Aclaración</button>
+
+                <div id="bloqueDudaFamiliarMed" class="bloque-respuesta-rapida" style="display:none;">
+                    <p class="alerta-pregunta"><b>❓ Historial / Pregunta del Familiar:</b> <span id="textoDudaFamiliarMed"></span></p>
+                    <label>Escriba su respuesta aclaratoria:</label>
+                    <textarea id="respuestaMedicoInput" rows="2" placeholder="Ej: El paciente está estable, los exámenes salieron bien..."></textarea>
+                    <button class="btn-responder" onclick="enviarRespuestaMedico()">💬 Enviar Respuesta al Familiar</button>
+                </div>
+
+                <button id="btnGuardarMed" class="btn-accion" onclick="registrarEstado()">🔄 Actualizar Estado Clínico</button>
+                <button class="btn-limpiar" onclick="limpiarFormularioMedico()">🧹 Limpiar Formulario</button>
+            </div>
+
+            <h3>📋 Lista de Pacientes Atendidos a su Cargo</h3>
+            <p class="instruccion-lista">Seleccione cualquier paciente de la lista para cargar sus datos, modificar su estado o responder sus dudas.</p>
+            <div id="listaPacientesMed" class="contenedor-lista-pacientes"></div>
+
+            <button class="btn-cerrar-sesion" onclick="cerrarSesion()">🔒 Cerrar Sesión</button>
+        </div>
+
+        <div id="pantallaModuloFamiliar" class="pantalla" style="display:none;">
+            <h2>👥 Consulta de Estado en Tiempo Real</h2>
+            <p class="instruccion">Consulte el estado actual mediante el documento o nombre del paciente</p>
+            
+            <div class="formulario">
+                <label>Ingrese el Número de Identificación o Nombre del Paciente:</label>
+                <input type="text" id="buscarQuery" placeholder="Cédula o Nombre completo...">
+                
+                <button class="btn-accion" onclick="buscarPaciente()">Consultar Estado en Tiempo Real</button>
+                <button class="btn-limpiar" onclick="limpiarBuscador()">Limpiar Búsqueda</button>
+            </div>
+
+            <div id="notificacionesFamiliar" class="notificacion-familiar-alerta" style="display:none;">
+                <p id="textoNotificacionFam"></p>
+            </div>
+
+            <div id="resultadoBusqueda" class="contenedor-resultados" style="display:none;"></div>
+
+            <button class="btn-volver" onclick="irAPantalla('Inicio')">← Volver al Inicio</button>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
